@@ -159,6 +159,7 @@ public class MemoryUsage extends TestCase {
      *
      * @see #testXmlAttached()
      */
+/*
     public void testXmlDetached() {
         System.out.println();
         System.out.println("Testing detached");
@@ -179,7 +180,7 @@ public class MemoryUsage extends TestCase {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
         }
         printMemoryUsage("after");
-    }
+    }*/
 
     /**
      * Generate attached (having a parent bean) Xml beans until OutOfMemoryError.
@@ -187,7 +188,7 @@ public class MemoryUsage extends TestCase {
      *
      * @see #testXmlAttached()
      */
-    public void testXmlAttached() {
+    /*public void testXmlAttached() {
         System.out.println();
         System.out.println("Testing attached");
         printMemoryUsage("before");
@@ -210,7 +211,7 @@ public class MemoryUsage extends TestCase {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
         }
         printMemoryUsage("after");
-    }
+    }*/
 
     public void testMixedHSSF() {
         mixedSpreadsheet(new HSSFWorkbook(), NUM_COLUMNS);
