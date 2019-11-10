@@ -264,6 +264,13 @@ project('ooxml') {
         }
     }
 
+    tasks.register('site') {
+	dependsOn 'ant--forrest-docs'
+	doLast {
+		println("site built")
+	}
+    }
+
     japicmp.baseline = 'org.apache.poi:poi-ooxml:' + japicmpversion + '@jar'
 }
 

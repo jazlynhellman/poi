@@ -213,9 +213,9 @@ public class MemoryUsage extends TestCase {
         printMemoryUsage("after");
     }*/
 
-    public void testMixedHSSF() {
+   /* public void testMixedHSSF() {
         mixedSpreadsheet(new HSSFWorkbook(), NUM_COLUMNS);
-    }
+    }*/
 
     public void testMixedXSSF() {
         mixedSpreadsheet(new XSSFWorkbook(), NUM_COLUMNS);
