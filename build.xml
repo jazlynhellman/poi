@@ -1725,15 +1725,19 @@ under the License.
 
     <!-- GENERATE DOCUMENTATION -->
 
+    <!-- ECSE437 FOCUS ON THIS PART BELOW -->
     <!-- Section: docs -->
     <target name="-check-docs">
+        <!-- Task: Echo -->
         <echo message="Checking if documentation recreation is necessary, i.e. if any file at ${main.documentation} is newer than ${build.site}/index.html"/>
+        <!-- Task: Uptodate -->
         <uptodate property="main.docs.notRequired" targetfile="${build.site}/index.html">
             <srcfiles dir="${main.documentation}" />
         </uptodate>
     </target>
 
     <target name="-check-forrest-installed" unless="env.FORREST_HOME">
+        <!-- Task: Echo -->
         <echo>Please install Apache Forrest (see
             &lt;https://forrest.apache.org/index.html&gt;) and set the
             FORREST_HOME environment variable!
@@ -1749,21 +1753,26 @@ under the License.
 
     <target name="-forrest-docs" depends="-check-forrest-installed, -check-docs"
             unless="main.docs.notRequired" description="Builds the HTML pages of the POI website">
+        <!-- Task: Exec -->
         <exec executable="${env.FORREST_HOME}/bin/forrest" osfamily="unix"/>
         <exec executable="cmd" osfamily="windows">
             <arg value="/c"/>
             <arg value="${env.FORREST_HOME}/bin/forrest.bat"/>
         </exec>
 
+        <!-- Task: Echo -->
         <echo>Broken links:</echo>
         <echo file="${build.site}/../tmp/brokenlinks.xml"/>
-
+        <!-- Task: FixCRLF -->
         <fixcrlf srcdir="${build.site}" includes="**/*.html,**/*.css" eol="unix" eof="remove" />
 
+        <!-- Task: Touch -->
         <touch>
             <fileset dir="${build.site}"/>
         </touch>
     </target>
+
+     <!-- ECSE437 FOCUS ON THIS ABOVE -->
 
     <!-- Generates the latest/development API documentation. -->
     <target name="javadocs"
