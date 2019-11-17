@@ -265,20 +265,51 @@ project('ooxml') {
     }
 
     tasks.register('site') {
-	dependsOn 'ant--forrest-docs'
-	doLast {
-		println("site built")
-	}
+	    dependsOn 'ant--forrest-docs'
+	    doLast {
+		    println("site built")
+	    }
+    }
+
+    tasks.register('compile') {
+        dependsOn 'ant-init'
+        dependsOn 'ant-compile-main'
+        dependsOn 'ant-compile-scratchpad'
+        dependsOn 'ant-compile-examples'
+        dependsOn 'ant-compile-excelant'
+
+        description = "Compiles the POI main classes, scratchpad and examples"
+    }
+
+    tasks.register('jenkins') {
+        dependsOn 'ant-replaceVersion'
+        dependsOn 'ant-compile'
+        dependsOn 'ant-test-all'
+        dependsOn 'ant-jar'
+        dependsOn 'ant-javadocs'
+        dependsOn 'ant-assemble'
+        dependsOn 'ant-findbugs'
+        dependsOn 'ant-release-notes'
+        dependsOn 'ant-rat-check'
+        dependsOn 'ant-forbidden-apis-check'
+        dependsOn 'ant-integration-test-jar'
+        dependsOn 'ant-help'
+        dependsOn 'ant-fetch-svn-jars'
+        dependsOn 'ant-maven-poms'
+        dependsOn 'ant-maventask'
+        dependsOn 'ant-mvn-install'
+
+        description = "Target run by Jenkins on a continuous basis. Builds and tests POI, generates artifacts and documentation, and searches for problems."
     }
 
     task cl {
- 	delete '../../build'
-	doLast {
-		println("deleted build folder")
-	}
+ 	    delete '../../build'
+	    doLast {
+		    println("deleted build folder")
+	    }
     }
 
-    task init{
+    task init {
 	
     }
 
