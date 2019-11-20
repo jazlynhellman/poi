@@ -348,7 +348,7 @@ project('ooxml') {
         dependsOn 'ant-init'
         description = 'Compiles the version class'
         delete version_java
-        copyVersion
+        copyVersion // Look at subtask above.
         compileJava
         delete version_java
     }
