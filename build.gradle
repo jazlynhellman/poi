@@ -312,7 +312,6 @@ project('ooxml') {
 
     def version_java = "/org/apache/poi/Version.java"
     def version_id = "4.1.2-SNAPSHOT"
-    def DSTAMP = "${getDate()}"
     def jdk_version_class = "1.8"
     def jdk_version_source = "1.8"
 
@@ -342,7 +341,7 @@ project('ooxml') {
         delete version_java
 
         from('src/resources/version/Version.java.template') {
-            filter(ReplaceTokens, tokens: [VERSION: version_id], [DSTAMP: DSTAMP])
+            filter(ReplaceTokens, tokens: [VERSION: version_id], [DSTAMP: ant.properties['DSTAMP']])
             into version_java
         }
 
