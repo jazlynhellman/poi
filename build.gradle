@@ -15,7 +15,7 @@
    limitations under the License.
 ==================================================================== */
 
-// Filter import for copyTask.
+// Filter import for copyVersion.
 import org.apache.tools.ant.filters.*
 
 buildscript {
