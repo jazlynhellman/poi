@@ -299,6 +299,7 @@ project('ooxml') {
     def svg_batik_url = repo_m2 + "/maven2/org/apache/xmlgraphics/batik-all/1.11/batik-all-1.11.jar"
     def svg_xml_apis_ext_url = repo_m2 + "/maven2/xml-apis/xml-apis-ext/1.3.04/xml-apis-ext-1.3.04.jar"
     def svg_xmlgraphics_commons_url = repo_m2 + "/maven2/org/apache/xmlgraphics/xmlgraphics-commons/2.3/xmlgraphics-commons-2.3.jar"
+    def jacoco_url = repo_m2 + "/maven2/org/jacoco/jacoco/0.8.3/jacoco-0.8.3.zip"
 
     def curvesapi_jar = ooxml_lib + "/curvesapi-1.06.jar"
     def xml_beans_jar = ooxml_lib + "/xmlbeans-3.1.0.jar"
@@ -309,8 +310,9 @@ project('ooxml') {
     def svg_batik_jar = compile_lib + "/batik-all-1.11.jar"
     def svg_xml_apis_jar = compile_lib + "/xml-apis-ext-1.3.04.jar"
     def svg_xmlgraphics_commons_jar = compile_lib + "/xmlgraphics-commons-2.3.jar"
+    def jacoco_zip = main_lib + "jacoco-0.8.3.zip"
 
-
+    def ooxml_jars_present = false
 
     def main_commons_logging_url = repo_m2 + "/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
 
@@ -353,62 +355,93 @@ project('ooxml') {
     }
 
     tasks.register('cl') {
-	doLast {
-	   delete '../../build'
-	}
+        doLast {
+           delete '../../build'
+        }
     }
 
     ext.downloadfile = {source, destination ->
-	ant.get(src: source, dest: destination, skipexisting: 'true')
+	   ant.get(src: source, dest: destination, skipexisting: 'true')
     }
 
     task downloadfile_test() {
-	doLast{
-		downloadfile(main_commons_logging_url, './commons-logging-1.2.jar')
-	}
+        doLast{
+        	downloadfile(main_commons_logging_url, './commons-logging-1.2.jar')
+        }
     }
 
-    tasks.register('g-fetch-ooxml-jars') {
-	dependsOn 'ant-check-ooxml-jars'
-	doLast {
-		mkdir ooxml_lib
-		mkdir ooxml_test_lib
+    
+    tasks.register('g-fetch-jars') {
+        dependsOn 'g-check-jars'
+        doLast {   
+            mkdir main_lib
 
-		downloadfile(ooxml_curvesapi_url, curvesapi_jar)
-		downloadfile(ooxml_xmlbeans_url, xml_beans_jar)
-		downloadfile(ooxml_commons_compress_url, commons_compress_jar)
-		downloadfile(ooxml_test_reflections_url, test_reflections_jar)
-		downloadfile(test_javassist_url, test_javassist_jar)
-		downloadfile(test_guava_url, test_guava_jar)
-		downloadfile(svg_batik_url, svg_batik_jar)
-		downloadfile(svg_xml_apis_ext_url, svg_xml_apis_jar)
-		downloadfile(svg_xmlgraphics_commons_url, svg_xmlgraphics_commons_jar)
-	}
+
+            downloadfile(jacoco_url, jacoco_zip)
+
+        }
+    }
+
+    tasks.register('g-check-ooxml-jars') {
+        
+        doLast{
+            def all_files_exists = true
+            def jar_list = [curvesapi_jar, xml_beans_jar, commons_compress_jar, test_reflections_jar,test_guava_jar,test_javassist_jar, svg_xml_apis_jar, svg_xmlgraphics_commons_jar
+            , svg_batik_jar]
+
+            for (jar in jar_list) {
+                all_files_exists = all_files_exists && file(jar).exists()   
+            }
+
+            ooxml_jars_present = all_files_exists
+        }
+    }
+
+
+
+    tasks.register('g-fetch-ooxml-jars') {
+        dependsOn 'g-check-ooxml-jars'
+        doLast {
+        	if(!ooxml_jars_present) {
+                mkdir ooxml_lib
+                mkdir ooxml_test_lib
+
+                downloadfile(ooxml_curvesapi_url, curvesapi_jar)
+                downloadfile(ooxml_xmlbeans_url, xml_beans_jar)
+                downloadfile(ooxml_commons_compress_url, commons_compress_jar)
+                downloadfile(ooxml_test_reflections_url, test_reflections_jar)
+                downloadfile(test_javassist_url, test_javassist_jar)
+                downloadfile(test_guava_url, test_guava_jar)
+                downloadfile(svg_batik_url, svg_batik_jar)
+                downloadfile(svg_xml_apis_ext_url, svg_xml_apis_jar)
+                downloadfile(svg_xmlgraphics_commons_url, svg_xmlgraphics_commons_jar)
+            }  
+        }
     }
 
     tasks.register('g-init') {
-	dependsOn 'ant-fetch-jars'
-	dependsOn 'ant-fetch-ooxml-jars'
-	doLast {
-		mkdir main_output_dir
-		mkdir main_output_test_dir
-		mkdir main_reports_test
-		mkdir scratchpad_output_dir
-		mkdir scratchpad_output_test_dir
-		mkdir scratchpad_reports_test
-		mkdir geometry_output_tmpdir
-		mkdir ooxml_output_dir
-		mkdir ooxml_output_test_dir
-		mkdir ooxml_reports_test
-		mkdir excelant_output_dir
-		mkdir excelant_output_test_dir
-		mkdir excelant_reports_test
-		mkdir examples_output_dir
-		mkdir integration_output_test_dir
-		mkdir integration_reports_test
-		mkdir dist_dir
-		mkdir build_site
-	}
+    	dependsOn 'g-fetch-jars'
+    	dependsOn 'g-fetch-ooxml-jars'
+    	doLast {
+    		mkdir main_output_dir
+    		mkdir main_output_test_dir
+    		mkdir main_reports_test
+    		mkdir scratchpad_output_dir
+    		mkdir scratchpad_output_test_dir
+    		mkdir scratchpad_reports_test
+    		mkdir geometry_output_tmpdir
+    		mkdir ooxml_output_dir
+    		mkdir ooxml_output_test_dir
+    		mkdir ooxml_reports_test
+    		mkdir excelant_output_dir
+    		mkdir excelant_output_test_dir
+    		mkdir excelant_reports_test
+    		mkdir examples_output_dir
+    		mkdir integration_output_test_dir
+    		mkdir integration_reports_test
+    		mkdir dist_dir
+    		mkdir build_site
+    	}
     }
 
     japicmp.baseline = 'org.apache.poi:poi-ooxml:' + japicmpversion + '@jar'
