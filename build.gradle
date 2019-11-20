@@ -340,7 +340,7 @@ project('ooxml') {
         desccription = "Compiles the version class" 
 
         delete version_java
-        
+
         from('src/resources/version/Version.java.template') {
             filter(ReplaceTokens, tokens: [VERSION: version_id], [DSTAMP: DSTAMP])
             into version_java
