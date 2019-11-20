@@ -14,6 +14,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
+
+// Filter import for copyVersion.
+import org.apache.tools.ant.filters.*
+
 buildscript {
     repositories {
         maven { url "https://plugins.gradle.org/m2/" }
@@ -314,6 +318,10 @@ project('ooxml') {
 
     def ooxml_jars_present = false
 
+    def version_java = "/org/apache/poi/Version.java"
+    def version_id = "4.1.2-SNAPSHOT"
+
+
     def main_commons_logging_url = repo_m2 + "/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
 
     tasks.register('site') {
@@ -330,7 +338,24 @@ project('ooxml') {
         dependsOn 'ant-compile-examples'
         dependsOn 'ant-compile-excelant'
 
-        description = "Compiles the POI main classes, scratchpad and examples"
+        description = 'Compiles the POI main classes, scratchpad and examples'
+    }
+
+    // Copy sub-task for compile-version task.
+    task copyVersion(type: Copy) {
+        from('src/resources/version/Version.java.template') {
+            filter(ReplaceTokens, tokens: [VERSION: version_id, DSTAMP: ant.properties['DSTAMP']])
+        }
+        into version_java
+    }
+
+    tasks.register('compile-version') {
+        dependsOn 'ant-init'
+        description = 'Compiles the version class'
+        delete version_java
+        copyVersion // Look at subtask above.
+        compileJava
+        delete version_java
     }
 
     tasks.register('jenkins') {
@@ -351,7 +376,7 @@ project('ooxml') {
         dependsOn 'ant-maventask'
         dependsOn 'ant-mvn-install'
 
-        description = "Target run by Jenkins on a continuous basis. Builds and tests POI, generates artifacts and documentation, and searches for pcroblems."
+        description = 'Target run by Jenkins on a continuous basis. Builds and tests POI, generates artifacts and documentation, and searches for problems.'
     }
 
     tasks.register('cl') {
