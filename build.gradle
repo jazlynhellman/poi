@@ -264,6 +264,56 @@ project('ooxml') {
         }
     }
 
+    def main_output_dir = '../../build/classes'
+    def main_output_test_dir = '../../build/test-classes'
+    def main_reports_test = '../../build/test-results'
+    def scratchpad_output_dir = '../../build/scratchpad-classes'
+    def scratchpad_output_test_dir = '../../build/scratchpad-test-classes'
+    def scratchpad_reports_test = '../../build/scratchpad-test-results'
+    def geometry_output_tmpdir = '../../build/geometry-java'
+    def ooxml_output_dir = '../../build/ooxml-classes'
+    def ooxml_output_test_dir = '../../build/ooxml-test-classes'
+    def ooxml_reports_test = '../../build/ooxml-test-results'
+    def excelant_output_dir = '../../build/excelant-classes'
+    def excelant_output_test_dir = '../../build/excelant-test-classes'
+    def excelant_reports_test = '../../build/excelant-test-results'
+    def examples_output_dir = '../../build/examples-classes'
+    def integration_output_test_dir = '../../build/integration-test-classes'
+    def integration_reports_test = '../../build/integration-test-results'
+    def dist_dir = '../../build/dist'
+    def build_site = '../../build/site'
+
+    def repo_m2 = "https://repo1.maven.org"
+
+    def ooxml_lib = '../../ooxml-lib'
+    def ooxml_test_lib = '../../ooxml-testlib'
+    def main_lib = "../../lib"
+    def compile_lib = "../../compile-lib"
+
+    def ooxml_curvesapi_url = repo_m2 + "/maven2/com/github/virtuald/curvesapi/1.06/curvesapi-1.06.jar"
+    def ooxml_xmlbeans_url = "https://repository.apache.org/content/repositories/releases/org/apache/xmlbeans/xmlbeans/3.1.0/xmlbeans-3.1.0.jar"
+    def ooxml_commons_compress_url = repo_m2 + "/maven2/org/apache/commons/commons-compress/1.19/commons-compress-1.19.jar"
+    def ooxml_test_reflections_url = repo_m2 + "/maven2/org/reflections/reflections/0.9.11/reflections-0.9.11.jar"
+    def test_javassist_url = repo_m2 + "/maven2/org/javassist/javassist/3.21.0-GA/javassist-3.21.0-GA.jar"
+    def test_guava_url = repo_m2 + "/maven2/com/google/guava/guava/20.0/guava-20.0.jar"
+    def svg_batik_url = repo_m2 + "/maven2/org/apache/xmlgraphics/batik-all/1.11/batik-all-1.11.jar"
+    def svg_xml_apis_ext_url = repo_m2 + "/maven2/xml-apis/xml-apis-ext/1.3.04/xml-apis-ext-1.3.04.jar"
+    def svg_xmlgraphics_commons_url = repo_m2 + "/maven2/org/apache/xmlgraphics/xmlgraphics-commons/2.3/xmlgraphics-commons-2.3.jar"
+
+    def curvesapi_jar = ooxml_lib + "/curvesapi-1.06.jar"
+    def xml_beans_jar = ooxml_lib + "/xmlbeans-3.1.0.jar"
+    def commons_compress_jar = main_lib + "/commons-compress-1.19.jar"
+    def test_reflections_jar = ooxml_test_lib + "/reflections.jar"
+    def test_javassist_jar = ooxml_test_lib + "/javassist.jar"
+    def test_guava_jar = ooxml_test_lib + "/guava.jar"
+    def svg_batik_jar = compile_lib + "/batik-all-1.11.jar"
+    def svg_xml_apis_jar = compile_lib + "/xml-apis-ext-1.3.04.jar"
+    def svg_xmlgraphics_commons_jar = compile_lib + "/xmlgraphics-commons-2.3.jar"
+
+
+
+    def main_commons_logging_url = repo_m2 + "/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
+
     tasks.register('site') {
 	    dependsOn 'ant--forrest-docs'
 	    doLast {
@@ -299,21 +349,67 @@ project('ooxml') {
         dependsOn 'ant-maventask'
         dependsOn 'ant-mvn-install'
 
-        description = "Target run by Jenkins on a continuous basis. Builds and tests POI, generates artifacts and documentation, and searches for problems."
+        description = "Target run by Jenkins on a continuous basis. Builds and tests POI, generates artifacts and documentation, and searches for pcroblems."
     }
 
-    task cl {
- 	    delete '../../build'
-	    doLast {
-		    println("deleted build folder")
-	    }
+    tasks.register('cl') {
+	doLast {
+	   delete '../../build'
+	}
     }
 
-    task init {
-	
+    ext.downloadfile = {source, destination ->
+	ant.get(src: source, dest: destination, skipexisting: 'true')
     }
 
-    tasks.findByName('ant-dist').mustRunAfter 'cl'
+    task downloadfile_test() {
+	doLast{
+		downloadfile(main_commons_logging_url, './commons-logging-1.2.jar')
+	}
+    }
+
+    tasks.register('g-fetch-ooxml-jars') {
+	dependsOn 'ant-check-ooxml-jars'
+	doLast {
+		mkdir ooxml_lib
+		mkdir ooxml_test_lib
+
+		downloadfile(ooxml_curvesapi_url, curvesapi_jar)
+		downloadfile(ooxml_xmlbeans_url, xml_beans_jar)
+		downloadfile(ooxml_commons_compress_url, commons_compress_jar)
+		downloadfile(ooxml_test_reflections_url, test_reflections_jar)
+		downloadfile(test_javassist_url, test_javassist_jar)
+		downloadfile(test_guava_url, test_guava_jar)
+		downloadfile(svg_batik_url, svg_batik_jar)
+		downloadfile(svg_xml_apis_ext_url, svg_xml_apis_jar)
+		downloadfile(svg_xmlgraphics_commons_url, svg_xmlgraphics_commons_jar)
+	}
+    }
+
+    tasks.register('g-init') {
+	dependsOn 'ant-fetch-jars'
+	dependsOn 'ant-fetch-ooxml-jars'
+	doLast {
+		mkdir main_output_dir
+		mkdir main_output_test_dir
+		mkdir main_reports_test
+		mkdir scratchpad_output_dir
+		mkdir scratchpad_output_test_dir
+		mkdir scratchpad_reports_test
+		mkdir geometry_output_tmpdir
+		mkdir ooxml_output_dir
+		mkdir ooxml_output_test_dir
+		mkdir ooxml_reports_test
+		mkdir excelant_output_dir
+		mkdir excelant_output_test_dir
+		mkdir excelant_reports_test
+		mkdir examples_output_dir
+		mkdir integration_output_test_dir
+		mkdir integration_reports_test
+		mkdir dist_dir
+		mkdir build_site
+	}
+    }
 
     japicmp.baseline = 'org.apache.poi:poi-ooxml:' + japicmpversion + '@jar'
 }
