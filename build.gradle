@@ -326,7 +326,7 @@ project('ooxml') {
 	    }
     }
 
-    tasks.register('g-compile') {
+    tasks.register('compile') {
         dependsOn 'ant-init'
         dependsOn 'ant-compile-main'
         dependsOn 'ant-compile-scratchpad'
