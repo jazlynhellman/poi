@@ -358,6 +358,18 @@ project('ooxml') {
         delete version_java
     }
 
+    task copyReleaseNotes(type: Copy) {
+        from("src/documentation/RELEASE-NOTES.txt") {
+            filter(ReplaceTokens, tokens: [VERSION: version_id, DTSAMP: ant.properties['DSTAMP'], RELEASE_TAG: ant.properties['RELEASE_TAG']])
+        }
+        into "build/dist/"
+    }
+
+    tasks.register('release-notes') {
+        dependsOn 'ant-init'
+        copyReleaseNotes
+    }
+
     tasks.register('jenkins') {
         dependsOn 'ant-replaceVersion'
         dependsOn 'ant-compile'
