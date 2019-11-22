@@ -14,6 +14,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
+
+// Filter import for copyVersion.
+import org.apache.tools.ant.filters.*
+
 buildscript {
     repositories {
         maven { url "https://plugins.gradle.org/m2/" }
@@ -264,11 +268,217 @@ project('ooxml') {
         }
     }
 
+    def main_output_dir = '../../build/classes'
+    def main_output_test_dir = '../../build/test-classes'
+    def main_reports_test = '../../build/test-results'
+    def scratchpad_output_dir = '../../build/scratchpad-classes'
+    def scratchpad_output_test_dir = '../../build/scratchpad-test-classes'
+    def scratchpad_reports_test = '../../build/scratchpad-test-results'
+    def geometry_output_tmpdir = '../../build/geometry-java'
+    def ooxml_output_dir = '../../build/ooxml-classes'
+    def ooxml_output_test_dir = '../../build/ooxml-test-classes'
+    def ooxml_reports_test = '../../build/ooxml-test-results'
+    def excelant_output_dir = '../../build/excelant-classes'
+    def excelant_output_test_dir = '../../build/excelant-test-classes'
+    def excelant_reports_test = '../../build/excelant-test-results'
+    def examples_output_dir = '../../build/examples-classes'
+    def integration_output_test_dir = '../../build/integration-test-classes'
+    def integration_reports_test = '../../build/integration-test-results'
+    def dist_dir = '../../build/dist'
+    def build_site = '../../build/site'
+
+    def repo_m2 = "https://repo1.maven.org"
+
+    def ooxml_lib = '../../ooxml-lib'
+    def ooxml_test_lib = '../../ooxml-testlib'
+    def main_lib = "../../lib"
+    def compile_lib = "../../compile-lib"
+
+    def ooxml_curvesapi_url = repo_m2 + "/maven2/com/github/virtuald/curvesapi/1.06/curvesapi-1.06.jar"
+    def ooxml_xmlbeans_url = "https://repository.apache.org/content/repositories/releases/org/apache/xmlbeans/xmlbeans/3.1.0/xmlbeans-3.1.0.jar"
+    def ooxml_commons_compress_url = repo_m2 + "/maven2/org/apache/commons/commons-compress/1.19/commons-compress-1.19.jar"
+    def ooxml_test_reflections_url = repo_m2 + "/maven2/org/reflections/reflections/0.9.11/reflections-0.9.11.jar"
+    def test_javassist_url = repo_m2 + "/maven2/org/javassist/javassist/3.21.0-GA/javassist-3.21.0-GA.jar"
+    def test_guava_url = repo_m2 + "/maven2/com/google/guava/guava/20.0/guava-20.0.jar"
+    def svg_batik_url = repo_m2 + "/maven2/org/apache/xmlgraphics/batik-all/1.11/batik-all-1.11.jar"
+    def svg_xml_apis_ext_url = repo_m2 + "/maven2/xml-apis/xml-apis-ext/1.3.04/xml-apis-ext-1.3.04.jar"
+    def svg_xmlgraphics_commons_url = repo_m2 + "/maven2/org/apache/xmlgraphics/xmlgraphics-commons/2.3/xmlgraphics-commons-2.3.jar"
+    def jacoco_url = repo_m2 + "/maven2/org/jacoco/jacoco/0.8.3/jacoco-0.8.3.zip"
+
+    def curvesapi_jar = ooxml_lib + "/curvesapi-1.06.jar"
+    def xml_beans_jar = ooxml_lib + "/xmlbeans-3.1.0.jar"
+    def commons_compress_jar = main_lib + "/commons-compress-1.19.jar"
+    def test_reflections_jar = ooxml_test_lib + "/reflections.jar"
+    def test_javassist_jar = ooxml_test_lib + "/javassist.jar"
+    def test_guava_jar = ooxml_test_lib + "/guava.jar"
+    def svg_batik_jar = compile_lib + "/batik-all-1.11.jar"
+    def svg_xml_apis_jar = compile_lib + "/xml-apis-ext-1.3.04.jar"
+    def svg_xmlgraphics_commons_jar = compile_lib + "/xmlgraphics-commons-2.3.jar"
+    def jacoco_zip = main_lib + "jacoco-0.8.3.zip"
+
+    def ooxml_jars_present = false
+
+    def version_java = "/org/apache/poi/Version.java"
+    def version_id = "4.1.2-SNAPSHOT"
+
+
+    def main_commons_logging_url = repo_m2 + "/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
+
     tasks.register('site') {
-	dependsOn 'ant--forrest-docs'
-	doLast {
-		println("site built")
-	}
+	    dependsOn 'ant--forrest-docs'
+	    doLast {
+		    println("site built")
+	    }
+    }
+
+    tasks.register('compile') {
+        dependsOn 'ant-init'
+        dependsOn 'ant-compile-main'
+        dependsOn 'ant-compile-scratchpad'
+        dependsOn 'ant-compile-examples'
+        dependsOn 'ant-compile-excelant'
+
+        description = 'Compiles the POI main classes, scratchpad and examples'
+    }
+
+    // Copy sub-task for compile-version task.
+    task copyVersion(type: Copy) {
+        from('src/resources/version/Version.java.template') {
+            filter(ReplaceTokens, tokens: [VERSION: version_id, DSTAMP: ant.properties['DSTAMP']])
+        }
+        into version_java
+    }
+
+    tasks.register('compile-version') {
+        dependsOn 'ant-init'
+        description = 'Compiles the version class'
+        delete version_java
+        copyVersion // Look at subtask above.
+        compileJava
+        delete version_java
+    }
+
+    task copyReleaseNotes(type: Copy) {
+        from("src/documentation/RELEASE-NOTES.txt") {
+            filter(ReplaceTokens, tokens: [VERSION: version_id, DTSAMP: ant.properties['DSTAMP'], RELEASE_TAG: ant.properties['RELEASE_TAG']])
+        }
+        into "build/dist/"
+    }
+
+    tasks.register('release-notes') {
+        dependsOn 'ant-init'
+        copyReleaseNotes
+    }
+
+    tasks.register('jenkins') {
+        dependsOn 'ant-replaceVersion'
+        dependsOn 'ant-compile'
+        dependsOn 'ant-test-all'
+        dependsOn 'ant-jar'
+        dependsOn 'ant-javadocs'
+        dependsOn 'ant-assemble'
+        dependsOn 'ant-findbugs'
+        dependsOn 'ant-release-notes'
+        dependsOn 'ant-rat-check'
+        dependsOn 'ant-forbidden-apis-check'
+        dependsOn 'ant-integration-test-jar'
+        dependsOn 'ant-help'
+        dependsOn 'ant-fetch-svn-jars'
+        dependsOn 'ant-maven-poms'
+        dependsOn 'ant-maventask'
+        dependsOn 'ant-mvn-install'
+
+        description = 'Target run by Jenkins on a continuous basis. Builds and tests POI, generates artifacts and documentation, and searches for problems.'
+    }
+
+    tasks.register('cl') {
+        doLast {
+           delete '../../build'
+        }
+    }
+
+    ext.downloadfile = {source, destination ->
+	   ant.get(src: source, dest: destination, skipexisting: 'true')
+    }
+
+    task downloadfile_test() {
+        doLast{
+        	downloadfile(main_commons_logging_url, './commons-logging-1.2.jar')
+        }
+    }
+
+    
+    tasks.register('g-fetch-jars') {
+        dependsOn 'g-check-jars'
+        doLast {   
+            mkdir main_lib
+
+
+            downloadfile(jacoco_url, jacoco_zip)
+
+        }
+    }
+
+    tasks.register('g-check-ooxml-jars') {
+        
+        doLast{
+            def all_files_exists = true
+            def jar_list = [curvesapi_jar, xml_beans_jar, commons_compress_jar, test_reflections_jar,test_guava_jar,test_javassist_jar, svg_xml_apis_jar, svg_xmlgraphics_commons_jar
+            , svg_batik_jar]
+
+            for (jar in jar_list) {
+                all_files_exists = all_files_exists && file(jar).exists()   
+            }
+
+            ooxml_jars_present = all_files_exists
+        }
+    }
+
+
+
+    tasks.register('g-fetch-ooxml-jars') {
+        dependsOn 'g-check-ooxml-jars'
+        doLast {
+        	if(!ooxml_jars_present) {
+                mkdir ooxml_lib
+                mkdir ooxml_test_lib
+
+                downloadfile(ooxml_curvesapi_url, curvesapi_jar)
+                downloadfile(ooxml_xmlbeans_url, xml_beans_jar)
+                downloadfile(ooxml_commons_compress_url, commons_compress_jar)
+                downloadfile(ooxml_test_reflections_url, test_reflections_jar)
+                downloadfile(test_javassist_url, test_javassist_jar)
+                downloadfile(test_guava_url, test_guava_jar)
+                downloadfile(svg_batik_url, svg_batik_jar)
+                downloadfile(svg_xml_apis_ext_url, svg_xml_apis_jar)
+                downloadfile(svg_xmlgraphics_commons_url, svg_xmlgraphics_commons_jar)
+            }  
+        }
+    }
+
+    tasks.register('g-init') {
+    	dependsOn 'g-fetch-jars'
+    	dependsOn 'g-fetch-ooxml-jars'
+    	doLast {
+    		mkdir main_output_dir
+    		mkdir main_output_test_dir
+    		mkdir main_reports_test
+    		mkdir scratchpad_output_dir
+    		mkdir scratchpad_output_test_dir
+    		mkdir scratchpad_reports_test
+    		mkdir geometry_output_tmpdir
+    		mkdir ooxml_output_dir
+    		mkdir ooxml_output_test_dir
+    		mkdir ooxml_reports_test
+    		mkdir excelant_output_dir
+    		mkdir excelant_output_test_dir
+    		mkdir excelant_reports_test
+    		mkdir examples_output_dir
+    		mkdir integration_output_test_dir
+    		mkdir integration_reports_test
+    		mkdir dist_dir
+    		mkdir build_site
+    	}
     }
 
     japicmp.baseline = 'org.apache.poi:poi-ooxml:' + japicmpversion + '@jar'
