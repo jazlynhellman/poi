@@ -1660,7 +1660,7 @@ under the License.
 
     <!-- the ooxml lite agent collects referenced schema files while other junit tests are run, -->
     <!-- therefore its best to compile the ooxml lite jar after all usual tests are done -->
-    <target name="compile-ooxml-lite" depends="compile-ooxml,-ooxml-lite-agent,test-ooxml" unless="compileooxmllite.notRequired>
+    <target name="compile-ooxml-lite" depends="compile-ooxml,-ooxml-lite-agent,test-ooxml" unless="compileooxmllite.notRequired">
         <echo message="Create ooxml-lite schemas"/>
 
         <copy file="${ooxml.lite.report}" tofile="${ooxml.lite.report}-pat" overwrite="true"/>
