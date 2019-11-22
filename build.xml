@@ -1233,7 +1233,7 @@ under the License.
                     <jvmarg value="-ea"/>
 
                     <!-- some "add-opens" are needed for Java 10, but not for 11+ -->
-                    <jvmarg value="--add-modules=java.xml.bind" if:true="${addOpens10}" />
+                    <jvmarg value="-add-modules=java.xml.bind" if:true="${addOpens10}" />
                     <jvmarg value="--add-opens=java.base/java.lang=java.xml.bind" if:true="${addOpens10}" />
 
                     <!-- some "add-opens" and other properties are needed when running with Java 9 or newer -->
@@ -1792,7 +1792,7 @@ under the License.
                 <include name="org/apache/poi/**"/>
             </packageset>
             
-            <arg value="--add-modules=java.xml.bind" if:true="${addOpens10}"/>
+            <arg value="-add-modules=java.xml.bind" if:true="${addOpens10}"/>
 
             <doctitle><![CDATA[<h1>POI API Documentation</h1>]]></doctitle>
             <bottom>
