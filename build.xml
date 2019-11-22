@@ -1408,7 +1408,8 @@ under the License.
     </target>
 
     <!-- Section: test (execute junit tests on test suites) -->
-    <target name="test" depends="compile,jacocotask,test-main,test-scratchpad,test-ooxml,test-excelant"
+    <!-- <target name="test" depends="compile,jacocotask,test-main,test-scratchpad,test-ooxml,test-excelant" -->
+    <target name="test" depends="compile,jacocotask,test-main,test-scratchpad,test-excelant"
             description="Tests main, scratchpad and ooxml"/>
     <target name="test-all" depends="test,test-integration,test-ooxml-lite,testcoveragereport"
             description="Tests main, scratchpad, ooxml, ooxml-lite, and coveragereport"/>
