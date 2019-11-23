@@ -7,9 +7,7 @@ regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
-
 http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,20 +18,14 @@ under the License.
 <!--
     This build was tested with ant 1.9.4 although it will probably work with
     other versions, however at least 1.8.0 is required.
-
-
     updated to forrest 0.9:
     To build the documentation you will need to install forrest and set
     the FORREST_HOME environment variable.
-
     Since POI 4.0 you will need JDK 1.8 or newer to build and run POI.
-
     Some people may find the tests hang when run through Ant. If this
     happens to you, try giving Ant some more memory when you run it, eg:
           ANT_OPTS="-Xmx1024m" ant test
-
  -->
-<!-- -->
 <project name="POI Build" default="help" basedir="."
     xmlns:mvn="antlib:org.apache.maven.artifact.ant"
     xmlns:openpgp="antlib:org.apache.commons.openpgp.ant"
@@ -963,7 +955,6 @@ under the License.
             <!-- the space between "public  static" is on purpose to prevent double execution -->
             <property name="loaderMethod"><![CDATA[
         private static java.lang.ref.SoftReference<org.apache.xmlbeans.SchemaTypeLoader> typeLoader;
-
         private static synchronized org.apache.xmlbeans.SchemaTypeLoader getTypeLoader() {
             org.apache.xmlbeans.SchemaTypeLoader stl = (typeLoader == null) ? null : typeLoader.get();
             if (stl == null) {
@@ -972,7 +963,6 @@ under the License.
             }
             return stl;
         }
-
         public  static \2 newInstance\(\) \{]]></property>
 
             <replaceregexp byline="true" match="(\s*)public static ([^ ]+) newInstance\(\) \{" replace="${loaderMethod}">
@@ -1233,7 +1223,7 @@ under the License.
                     <jvmarg value="-ea"/>
 
                     <!-- some "add-opens" are needed for Java 10, but not for 11+ -->
-                    <jvmarg value="--add-modules=java.xml.bind" if:true="${addOpens10}" />
+                    <jvmarg value="-add-modules=java.xml.bind" if:true="${addOpens10}" />
                     <jvmarg value="--add-opens=java.base/java.lang=java.xml.bind" if:true="${addOpens10}" />
 
                     <!-- some "add-opens" and other properties are needed when running with Java 9 or newer -->
@@ -1408,8 +1398,7 @@ under the License.
     </target>
 
     <!-- Section: test (execute junit tests on test suites) -->
-    <!-- <target name="test" depends="compile,jacocotask,test-main,test-scratchpad,test-ooxml,test-excelant" -->
-    <target name="test" depends="compile,jacocotask,test-main,test-scratchpad,test-excelant"
+    <target name="test" depends="compile,jacocotask,test-main,test-scratchpad,test-ooxml,test-excelant"
             description="Tests main, scratchpad and ooxml"/>
     <target name="test-all" depends="test,test-integration,test-ooxml-lite,testcoveragereport"
             description="Tests main, scratchpad, ooxml, ooxml-lite, and coveragereport"/>
@@ -1660,7 +1649,7 @@ under the License.
 
     <!-- the ooxml lite agent collects referenced schema files while other junit tests are run, -->
     <!-- therefore its best to compile the ooxml lite jar after all usual tests are done -->
-    <target name="compile-ooxml-lite" depends="compile-ooxml,-ooxml-lite-agent,test-ooxml" unless="compileooxmllite.notRequired">
+    <target name="compile-ooxml-lite" depends="compile-ooxml,-ooxml-lite-agent,test-ooxml">
         <echo message="Create ooxml-lite schemas"/>
 
         <copy file="${ooxml.lite.report}" tofile="${ooxml.lite.report}-pat" overwrite="true"/>
@@ -1727,19 +1716,15 @@ under the License.
 
     <!-- GENERATE DOCUMENTATION -->
 
-    <!-- ECSE437 FOCUS ON THIS PART BELOW -->
     <!-- Section: docs -->
     <target name="-check-docs">
-        <!-- Task: Echo -->
         <echo message="Checking if documentation recreation is necessary, i.e. if any file at ${main.documentation} is newer than ${build.site}/index.html"/>
-        <!-- Task: Uptodate -->
         <uptodate property="main.docs.notRequired" targetfile="${build.site}/index.html">
             <srcfiles dir="${main.documentation}" />
         </uptodate>
     </target>
 
     <target name="-check-forrest-installed" unless="env.FORREST_HOME">
-        <!-- Task: Echo -->
         <echo>Please install Apache Forrest (see
             &lt;https://forrest.apache.org/index.html&gt;) and set the
             FORREST_HOME environment variable!
@@ -1751,28 +1736,25 @@ under the License.
             unless="main.docs.notRequired" 
             description="Builds the POI website" />
 
+    <target name="site" depends="-forrest-docs"/>
+
     <target name="-forrest-docs" depends="-check-forrest-installed, -check-docs"
             unless="main.docs.notRequired" description="Builds the HTML pages of the POI website">
-        <!-- Task: Exec -->
         <exec executable="${env.FORREST_HOME}/bin/forrest" osfamily="unix"/>
         <exec executable="cmd" osfamily="windows">
             <arg value="/c"/>
             <arg value="${env.FORREST_HOME}/bin/forrest.bat"/>
         </exec>
 
-        <!-- Task: Echo -->
         <echo>Broken links:</echo>
         <echo file="${build.site}/../tmp/brokenlinks.xml"/>
-        <!-- Task: FixCRLF -->
+
         <fixcrlf srcdir="${build.site}" includes="**/*.html,**/*.css" eol="unix" eof="remove" />
 
-        <!-- Task: Touch -->
         <touch>
             <fileset dir="${build.site}"/>
         </touch>
     </target>
-
-     <!-- ECSE437 FOCUS ON THIS ABOVE -->
 
     <!-- Generates the latest/development API documentation. -->
     <target name="javadocs"
@@ -1793,7 +1775,7 @@ under the License.
                 <include name="org/apache/poi/**"/>
             </packageset>
             
-            <arg value="--add-modules=java.xml.bind" if:true="${addOpens10}"/>
+            <arg value="-add-modules=java.xml.bind" if:true="${addOpens10}"/>
 
             <doctitle><![CDATA[<h1>POI API Documentation</h1>]]></doctitle>
             <bottom>
@@ -2350,19 +2332,16 @@ under the License.
         <!-- ... eventually copy the files into the resource dirs ... -->
         <!--
         <mkdir dir="build/scratchpad-test-resources"/>
-
         <antcall target="downloadfile">
             <param name="sourcefile" value="https://sourceforge.net/projects/monafont/files/monafont/monafont-2.90/monafont-ttf-2.90.zip/download"/>
             <param name="destfile" value="build/scratchpad-test-resources/monafont-ttf-2.90.zip"/>
         </antcall>
-
         <unzip src="build/scratchpad-test-resources/monafont-ttf-2.90.zip"
                dest="build/scratchpad-test-resources">
             <patternset>
                 <include name="mona.ttf"/>
             </patternset>
         </unzip>
-
         <antcall target="downloadfile">
             <param name="sourcefile" value="https://googlefontdirectory.googlecode.com/hg-history/c5955de4df3e40f6ab705bbccbd1f5ad93998287/cabin/Cabin-Regular.ttf"/>
             <param name="destfile" value="build/scratchpad-test-resources/Cabin-Regular.ttf"/>
@@ -2858,34 +2837,34 @@ under the License.
       <echo>Using Ant: ${ant.version} from ${ant.home}</echo>    
     </target>
 
-	<target name="replaceVersion" description="Apply the version from build.xml in all other places">
-		<replaceregexp
+    <target name="replaceVersion" description="Apply the version from build.xml in all other places">
+        <replaceregexp
                match="(packaging>\n\s*&lt;version>)[0-9.]+(?:-SNAPSHOT)?"
                replace="\1${version.id}">
-			<fileset dir="sonar">
-				<include name="**/pom.xml"/>
-			</fileset>
+            <fileset dir="sonar">
+                <include name="**/pom.xml"/>
+            </fileset>
         </replaceregexp>
-		<replaceregexp
+        <replaceregexp
                match="(poi-parent&lt;/artifactId>\n\s*&lt;version>)[0-9.]+(?:-SNAPSHOT)?"
                replace="\1${version.id}">
-			<fileset dir="sonar">
-				<include name="**/pom.xml"/>
-			</fileset>
+            <fileset dir="sonar">
+                <include name="**/pom.xml"/>
+            </fileset>
         </replaceregexp>
-		<replaceregexp
+        <replaceregexp
                match=" version = '[0-9.]+(?:-SNAPSHOT)?'"
                replace=" version = '${version.id}'">
-			<fileset dir=".">
-				<include name="build.gradle"/>
-			</fileset>
+            <fileset dir=".">
+                <include name="build.gradle"/>
+            </fileset>
         </replaceregexp>
-		<replaceregexp
+        <replaceregexp
                match="version.id&quot; value=&quot;[0-9.]+(?:-SNAPSHOT)?&quot;/>"
                replace="version.id&quot; value=&quot;${version.id}&quot;/>">
-			<fileset dir=".">
-				<include name="osgi/build.xml"/>
-			</fileset>
+            <fileset dir=".">
+                <include name="osgi/build.xml"/>
+            </fileset>
         </replaceregexp>
-	</target>
+    </target>
 </project>

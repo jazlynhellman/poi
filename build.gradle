@@ -324,14 +324,14 @@ project('ooxml') {
 
     def main_commons_logging_url = repo_m2 + "/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
 
-    tasks.register('site') {
+    tasks.register('g-site') {
 	    dependsOn 'ant--forrest-docs'
 	    doLast {
 		    println("site built")
 	    }
     }
 
-    tasks.register('compile') {
+    tasks.register('g-compile') {
         dependsOn 'ant-init'
         dependsOn 'ant-compile-main'
         dependsOn 'ant-compile-scratchpad'
@@ -349,7 +349,7 @@ project('ooxml') {
         into version_java
     }
 
-    tasks.register('compile-version') {
+    tasks.register('g-compile-version') {
         dependsOn 'ant-init'
         description = 'Compiles the version class'
         delete version_java
@@ -365,12 +365,12 @@ project('ooxml') {
         into "build/dist/"
     }
 
-    tasks.register('release-notes') {
+    tasks.register('g-release-notes') {
         dependsOn 'ant-init'
         copyReleaseNotes
     }
 
-    tasks.register('jenkins') {
+    tasks.register('g-jenkins') {
         dependsOn 'ant-replaceVersion'
         dependsOn 'ant-compile'
         dependsOn 'ant-test-all'
@@ -391,7 +391,7 @@ project('ooxml') {
         description = 'Target run by Jenkins on a continuous basis. Builds and tests POI, generates artifacts and documentation, and searches for problems.'
     }
 
-    tasks.register('cl') {
+    tasks.register('g-clean') {
         doLast {
            delete '../../build'
         }
@@ -401,26 +401,8 @@ project('ooxml') {
 	   ant.get(src: source, dest: destination, skipexisting: 'true')
     }
 
-    task downloadfile_test() {
-        doLast{
-        	downloadfile(main_commons_logging_url, './commons-logging-1.2.jar')
-        }
-    }
-
-    
-    tasks.register('g-fetch-jars') {
-        dependsOn 'g-check-jars'
-        doLast {   
-            mkdir main_lib
-
-
-            downloadfile(jacoco_url, jacoco_zip)
-
-        }
-    }
 
     tasks.register('g-check-ooxml-jars') {
-        
         doLast{
             def all_files_exists = true
             def jar_list = [curvesapi_jar, xml_beans_jar, commons_compress_jar, test_reflections_jar,test_guava_jar,test_javassist_jar, svg_xml_apis_jar, svg_xmlgraphics_commons_jar
@@ -433,7 +415,6 @@ project('ooxml') {
             ooxml_jars_present = all_files_exists
         }
     }
-
 
 
     tasks.register('g-fetch-ooxml-jars') {
@@ -457,8 +438,8 @@ project('ooxml') {
     }
 
     tasks.register('g-init') {
-    	dependsOn 'g-fetch-jars'
-    	dependsOn 'g-fetch-ooxml-jars'
+    	dependsOn 'ant-fetch-jars'
+    	dependsOn 'ant-fetch-ooxml-jars'
     	doLast {
     		mkdir main_output_dir
     		mkdir main_output_test_dir
