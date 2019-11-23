@@ -2,7 +2,10 @@ import os
 import time
 
 def time_command(cmd):
-    exit_code = os.system(cmd)
+	start = time.time()
+	exit_code = os.system(cmd)
+	stop = time.time()
+	return stop - start
 
 
 def run_commands(build_tool, commands):
@@ -15,20 +18,18 @@ def run_commands(build_tool, commands):
             os.system("ant clean")
             if cmd == "site" or cmd == "g-site":
             	os.system("ant init")
-
-            start = time.time()
-            time_command("{} {}".format(build_tool, cmd))
-            stop = time.time()
-            time_sum += (stop-start)
+            
+            exec_time = time_command("{} {}".format(build_tool, cmd))
+            time_sum += exec_time
 
         run_times.append(time_sum / num_runs)
     return run_times
 
 
-ant_commands = ["site", "compile", "compile-version", "release-notes", "jenkins", "clean", "check-ooxml-jars", "fetch-ooxml-jars", "init"]
-# ant_commands = ["site"]
-gradle_commands = ["g-site", "g-compile", "g-compile-version", "g-release-notes", "g-jenkins", "g-clean", "g-check-ooxml-jars", "g-fetch-ooxml-jars", "g-init"]
-# gradle_commands = ["g-site"]
+# ant_commands = ["site", "compile", "compile-version", "release-notes", "jenkins", "clean", "check-ooxml-jars", "fetch-ooxml-jars", "init"]
+ant_commands = ["compile"]
+# gradle_commands = ["g-site", "g-compile", "g-compile-version", "g-release-notes", "g-jenkins", "g-clean", "g-check-ooxml-jars", "g-fetch-ooxml-jars", "g-init"]
+gradle_commands = ["g-compile"]
 
 ant_run_times = run_commands("ant", ant_commands)
 gradle_run_times = run_commands("./gradlew", gradle_commands)
