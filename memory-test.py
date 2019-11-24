@@ -17,7 +17,7 @@ def estimate_memory_use(cmd):
 # change num_runs to change the amount of times each task is called
 def run_commands(build_tool, commands):
     memory_use = []
-    num_runs = 5
+    num_runs = 1
     for cmd in commands:
         print("Running {} {} times".format(cmd, num_runs))
         mem_sum = 0
