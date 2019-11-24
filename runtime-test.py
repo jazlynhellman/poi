@@ -1,13 +1,15 @@
 import os
 import time
 
+# times the execution of a task
 def time_command(cmd):
 	start = time.time()
 	exit_code = os.system(cmd)
 	stop = time.time()
 	return stop - start
 
-
+# runs time_command for each of the commands specified below
+# change num_runs to change the amount of times each task is called
 def run_commands(build_tool, commands):
     run_times = []
     num_runs = 1
@@ -26,10 +28,8 @@ def run_commands(build_tool, commands):
     return run_times
 
 
-# ant_commands = ["site", "compile", "compile-version", "release-notes", "jenkins", "clean", "check-ooxml-jars", "fetch-ooxml-jars", "init"]
-ant_commands = ["compile"]
-# gradle_commands = ["g-site", "g-compile", "g-compile-version", "g-release-notes", "g-jenkins", "g-clean", "g-check-ooxml-jars", "g-fetch-ooxml-jars", "g-init"]
-gradle_commands = ["g-compile"]
+ant_commands = ["site", "compile", "compile-version", "release-notes", "jenkins", "clean", "check-ooxml-jars", "fetch-ooxml-jars", "init"]
+gradle_commands = ["g-site", "g-compile", "g-compile-version", "g-release-notes", "g-jenkins", "g-clean", "g-check-ooxml-jars", "g-fetch-ooxml-jars", "g-init"]
 
 ant_run_times = run_commands("ant", ant_commands)
 gradle_run_times = run_commands("./gradlew", gradle_commands)
