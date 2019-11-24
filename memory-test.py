@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 # this method attempts to measure memory used
