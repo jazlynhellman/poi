@@ -23,7 +23,7 @@ def run_commands(build_tool, commands):
         for i in range(num_runs):
             subprocess.call(["ant", "clean"])
             if cmd == "site" or cmd == "g-site":
-            	os.system("ant init")
+            	subprocess.call(["ant", "init"])
 
             used_mem = estimate_memory_use([build_tool, cmd])
             mem_sum += used_mem
