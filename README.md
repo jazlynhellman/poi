@@ -63,12 +63,12 @@ done
  
 exit $REJECT
 ```
-   - If attempting to configure this without control of a git server (for example with a GitHub repo) you can simply configure a new bare repository to act as the remote. git init --bare, git remote add local_origin <path_to_bare_repo>, git push local_origin then continue from step 2
+   - If attempting to configure this without control of a git server (for example with a GitHub repo) you can simply configure a new bare repository to act as the remote. `git init --bare`, `git remote add local_origin <path_to_bare_repo>`, `git push local_origin` then continue from Step 2
 3. Configure the hook by running:
 ```bash
 git config --add checkstyle.cmd "java -cp <PATH_TO_CHECKSTYLE.jar> com.puppycrawl.tools.checkstyle.Main -c <PATH_TO_GOOGLE_CHECKS.xml>”
 ```
-4. The hook is easily tested by attempting to push any code inside a .java file that does not conform to Google’s style guidelines. 
+4. The hook is easily tested by attempting to push any code inside a `.java` file that does not conform to Google’s style guidelines. 
 
 ## Gradle Migration
 1. Set up dependencies by executing `setup.sh`, found in the root of this branch.
