@@ -8,7 +8,62 @@ Note: Any successful push to this branch will trigger a build.
 
 ## Linting Integration
 1. Ensure the `checkstyle-8.26-all.jar` and the `google_checks.xml` files are included in your project folder.
-2. Place the pre-receive hook inside the `.git` hooks folder. 
+2. Place the pre-receive hook inside the `.git` hooks folder. The code for which is as follows:
+
+```bash
+#!/bin/sh
+ 
+checkstyle_cmd=`git config --get checkstyle.cmd`
+ 
+if [ -z "$checkstyle_cmd" ]; then
+   echo "Checkstyle command not defined."
+   echo "Configure server repository using \"git config --add checkstyle.cmd java -cp ... com.puppycrawl.tools.checkstyle.Main -c ../checkstyle.xml\""
+   exit 1
+fi
+ 
+REJECT=0
+ 
+while read oldrev newrev refname; do
+ 
+    if [ "$oldrev" == "0000000000000000000000000000000000000000" ];then
+        oldrev="${newrev}^"
+    fi
+    
+    files=`git diff --name-only ${oldrev} ${newrev}  | grep -e "\.java$"`
+    
+    if [ -n "$files" ]; then
+        TEMPDIR=`mktemp -d`
+        for file in ${files}; do
+            mkdir -p "${TEMPDIR}/`dirname ${file}`" &>/dev/null
+            git show $newrev:$file > ${TEMPDIR}/${file} 
+        done;
+    
+        files_to_check=`find $TEMPDIR -name '*.java'`
+                        
+        CHECKS=`${checkstyle_cmd} ${files_to_check} | sed 's/\\\\/\//g' | sed '1d;$d' | sed -e "s#${TEMPDIR}/##g" | sed 's/\(:[0-9]\+\)\+:\?.*//' | sort | uniq -c;exit ${PIPESTATUS[0]}`
+        CHECKS_EXIT=$?
+        
+        if [ ${CHECKS_EXIT} -ne 0 ] ; then
+            echo -e "\e[1;31mExecution of checkstyle cmd failed:\e[0m"
+            echo -e "\e[1;33m${checkstyle_cmd} [files]\e[0m"
+            exit ${CHECKS_EXIT}
+        fi
+                
+        if [ -n "$CHECKS" ]; then 
+            echo -e "\e[1;31mCHECKSTYLE ISSUES DETECTED -- REJECTED [$refname]\e[0m"
+            echo -e "$CHECKS" | while read num check; do
+                 printf '  \e[1;33m%4s\e[0m' $num
+                 echo -e "\e[1;33m $check\e[0m"
+            done
+            REJECT=1
+        fi
+        rm -rf $TEMPDIR
+    fi    
+done
+ 
+exit $REJECT
+```
+   - If attempting to configure this without control of a git server (for example with a GitHub repo) you can simply configure a new bare repository to act as the remote. git init --bare, git remote add local_origin <path_to_bare_repo>, git push local_origin then continue from step 2
 3. Configure the hook by running:
 ```bash
 git config --add checkstyle.cmd "java -cp <PATH_TO_CHECKSTYLE.jar> com.puppycrawl.tools.checkstyle.Main -c <PATH_TO_GOOGLE_CHECKS.xml>”
