@@ -1,4 +1,5 @@
-Welcome ECSE 437 Group 7's README for steps to replicate the evaluation of the team's technical improvements on Apache POI.
+# Introduction
+Welcome to ECSE 437 Group 7's README for steps to replicate the evaluation of the team's technical improvements on Apache POI.
 
 ## Preliminary Steps
 Before conducting each experiment, please ensure the following steps have been completed:
