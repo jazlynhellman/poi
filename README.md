@@ -8,7 +8,7 @@ Note: Any successful push to this branch will trigger a build.
 
 ## Linting Integration
 1. Ensure the `checkstyle-8.26-all.jar` and the `google_checks.xml` files are included in your project folder.
-2. Place the pre-receive hook inside the `.git` hooks folder. The code for which is as follows:
+2. Copy and paste the following code into the pre-receive hook inside your remote `.git` hooks folder:
 
 ```bash
 #!/bin/sh
